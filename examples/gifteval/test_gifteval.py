@@ -1,7 +1,17 @@
+import os
+import pytest
+from typing import Iterator
+
 from tirex import ForecastModel, load_model
 
 import pandas as pd
 from gift_eval_utils import TiRexGiftEvalWrapper, evaluate_dataset, gift_eval_dataset_iter
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_gift_eval_path() -> Iterator[None]:
+    os.environ["GIFT_EVAL"] = "/home/lkanggithub/projects/foundation_model_compare/gift_eval_datasets/"
+    yield
 
 
 def test() -> None:
