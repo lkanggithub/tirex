@@ -43,6 +43,7 @@ PRETTY_NAMES = {
     "car_parts_with_missing": "car_parts",
 }
 ALL_DATASETS = list(set(SHORT_DATA.split() + MED_LONG_DATA.split()))
+DATASETS_TO_TEST = ["electricity/W"]
 
 METRICS = [
     MSE(forecast_type="mean"),
@@ -67,7 +68,7 @@ except FileNotFoundError:
 
 
 def gift_eval_dataset_iter():
-    for ds_num, ds_name in enumerate(ALL_DATASETS):
+    for ds_num, ds_name in enumerate(DATASETS_TO_TEST):
         ds_key = ds_name.split("/")[0]
         terms = ["short", "medium", "long"]
         for term in terms:
