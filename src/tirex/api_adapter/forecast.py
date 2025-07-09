@@ -158,6 +158,7 @@ class ForecastModel(ABC):
         quantile_levels: list[float] = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
         yield_per_batch: bool = False,
         data_kwargs: dict = {},
+        predict_context_length: int = 1,
         **predict_kwargs,
     ):
         f"""
@@ -173,7 +174,7 @@ class ForecastModel(ABC):
         assert batch_size >= 1, "Batch size must be >= 1"
         if not _GLUONTS_AVAILABLE:
             raise ValueError("forecast_gluon glutonts needs GluonTs but GluonTS is not available (not installed)!")
-        batches = get_gluon_batches(gluonDataset, batch_size, **data_kwargs)
+        batches = get_gluon_batches(gluonDataset, batch_size, predict_context_length, **data_kwargs)
         return _gen_forecast(
             self._forecast_quantiles, batches, output_type, quantile_levels, yield_per_batch, **predict_kwargs
         )

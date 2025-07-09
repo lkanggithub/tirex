@@ -19,15 +19,14 @@ def update_series_by_forecast_context_length(series, target_col_name: str, conte
     return series
 
 
-def _get_gluon_ts_map(**gluon_kwargs):
+def _get_gluon_ts_map(predict_context_length: int, **gluon_kwargs):
     target_col = gluon_kwargs.get("target_column", DEF_TARGET_COLUMN)
     meta_columns = gluon_kwargs.get("meta_columns", DEF_META_COLUMNS)
-    context_length = gluon_kwargs.get("context_length", 1)
 
     def extract_gluon(series):
         import pdb  # P4T
         pdb.set_trace()  # P4T
-        series = update_series_by_forecast_context_length(series, target_col, context_length)
+        series = update_series_by_forecast_context_length(series, target_col, predict_context_length)
         ctx = torch.Tensor(series[target_col])
         meta = {k: series[k] for k in meta_columns if k in series}
         meta["length"] = len(ctx)
@@ -36,8 +35,8 @@ def _get_gluon_ts_map(**gluon_kwargs):
     return extract_gluon
 
 
-def get_gluon_batches(gluonDataset: Dataset, batch_size: int, **gluon_kwargs):
-    return _batch_pad_iterable(map(_get_gluon_ts_map(**gluon_kwargs), gluonDataset), batch_size)
+def get_gluon_batches(gluonDataset: Dataset, batch_size: int, predict_context_length: int, **gluon_kwargs):
+    return _batch_pad_iterable(map(_get_gluon_ts_map(predict_context_length, **gluon_kwargs), gluonDataset), batch_size)
 
 
 def format_gluonts_output(quantile_forecasts: torch.Tensor, mean_forecasts, meta: list[dict], quantile_levels):

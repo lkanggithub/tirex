@@ -152,7 +152,7 @@ class TiRexGiftEvalWrapper:
             test_data_input,
             prediction_length=self.pred_len,
             output_type="gluonts",
-            context_length=self.context_len,
+            predict_context_length=self.context_len,
         )
         return forecasts
 
