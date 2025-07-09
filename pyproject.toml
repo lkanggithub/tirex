@@ -92,3 +92,8 @@ section-order = ["future", "standard-library", "third-party", "first-party", "ti
 
 [tool.ruff.lint.isort.sections]
 "tirex" = ["tirex"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]

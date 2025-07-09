@@ -83,7 +83,8 @@ def gift_eval_dataset_iter():
                 ds_key = ds_name.lower()
                 ds_key = PRETTY_NAMES.get(ds_key, ds_key)
                 ds_freq = dataset_properties_map[ds_key]["frequency"]
-            yield {"ds_name": ds_name, "ds_key": ds_key, "ds_freq": ds_freq, "term": term}
+            if dataset_properties_map[ds_key]["num_variates"] == 1:
+                yield {"ds_name": ds_name, "ds_key": ds_key, "ds_freq": ds_freq, "term": term}
 
 
 # Setup GiftEval evaluation

@@ -184,18 +184,31 @@ class Dataset:
         return sum(lengths.to_numpy())
 
     @property
+    def train_offset_from_the_end(self) -> int:
+        return -self.prediction_length * (self.windows + 1)
+
+    @property
+    def validation_offset_from_the_end(self) -> int:
+        return -self.prediction_length * self.windows
+
+    @property
+    def full_dataset(self) -> TrainingDataset:
+        full_dataset, _ = split(self.gluonts_dataset, offset=-1)
+        return full_dataset
+
+    @property
     def training_dataset(self) -> TrainingDataset:
-        training_dataset, _ = split(self.gluonts_dataset, offset=-self.prediction_length * (self.windows + 1))
+        training_dataset, _ = split(self.gluonts_dataset, offset=self.train_offset_from_the_end)
         return training_dataset
 
     @property
     def validation_dataset(self) -> TrainingDataset:
-        validation_dataset, _ = split(self.gluonts_dataset, offset=-self.prediction_length * self.windows)
+        validation_dataset, _ = split(self.gluonts_dataset, offset=self.validation_offset_from_the_end)
         return validation_dataset
 
     @property
     def test_data(self) -> TestData:
-        _, test_template = split(self.gluonts_dataset, offset=-self.prediction_length * self.windows)
+        _, test_template = split(self.gluonts_dataset, offset=self.validation_offset_from_the_end)
         test_data = test_template.generate_instances(
             prediction_length=self.prediction_length,
             windows=self.windows,
