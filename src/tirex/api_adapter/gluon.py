@@ -24,8 +24,6 @@ def _get_gluon_ts_map(predict_context_length: int, **gluon_kwargs):
     meta_columns = gluon_kwargs.get("meta_columns", DEF_META_COLUMNS)
 
     def extract_gluon(series):
-        import pdb  # P4T
-        pdb.set_trace()  # P4T
         series = update_series_by_forecast_context_length(series, target_col, predict_context_length)
         ctx = torch.Tensor(series[target_col])
         meta = {k: series[k] for k in meta_columns if k in series}
