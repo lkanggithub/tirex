@@ -1,6 +1,6 @@
 from tirex import ForecastModel, load_model
 
-model: ForecastModel = load_model("NX-AI/TiRex", device="cpu")
+model: ForecastModel = load_model("NX-AI/TiRex", device="cuda:0")
 
 
 import pandas as pd
