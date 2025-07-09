@@ -13,13 +13,21 @@ DEF_TARGET_COLUMN = FieldName.TARGET  # target
 DEF_META_COLUMNS = (FieldName.START, FieldName.ITEM_ID)
 
 
+def update_series_by_forecast_context_length(series, target_col_name: str, context_length: int):
+    series[FieldName.START] = series[FieldName.START] + len(series[target_col_name]) - context_length
+    series[target_col_name] = series[target_col_name][-context_length:]
+    return series
+
+
 def _get_gluon_ts_map(**gluon_kwargs):
     target_col = gluon_kwargs.get("target_column", DEF_TARGET_COLUMN)
     meta_columns = gluon_kwargs.get("meta_columns", DEF_META_COLUMNS)
+    context_length = gluon_kwargs.get("context_length", 1)
 
     def extract_gluon(series):
         import pdb  # P4T
         pdb.set_trace()  # P4T
+        series = update_series_by_forecast_context_length(series, target_col, context_length)
         ctx = torch.Tensor(series[target_col])
         meta = {k: series[k] for k in meta_columns if k in series}
         meta["length"] = len(ctx)

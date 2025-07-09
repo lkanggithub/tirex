@@ -89,7 +89,7 @@ def gift_eval_dataset_iter():
 
 
 # Setup GiftEval evaluation
-def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term):
+def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term, ds_train_context_length: int = 128):
     print(f"Processing dataset: {ds_name}")
     ds_config = f"{ds_key}/{ds_freq}/{term}"
     # Initialize the dataset
@@ -97,6 +97,7 @@ def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term):
     dataset = Dataset(name=ds_name, term=term, to_univariate=to_univariate)
     predictor.set_prediction_len(dataset.prediction_length)
     predictor.set_ds_freq(ds_freq)
+    predictor.set_context_len(ds_train_context_length)
     season_length = get_seasonality(dataset.freq)
 
     # Measure the time taken for evaluation
@@ -135,6 +136,7 @@ class TiRexGiftEvalWrapper:
     model: Any
     freq: str = None
     pred_len: int = 32
+    context_len: int = 128
 
     def set_ds_freq(self, freq):
         self.freq = freq
@@ -142,8 +144,16 @@ class TiRexGiftEvalWrapper:
     def set_prediction_len(self, pred_len):
         self.pred_len = pred_len
 
+    def set_context_len(self, context_len: int) -> None:
+        self.context_len = context_len
+
     def predict(self, test_data_input):
-        forecasts = self.model.forecast_gluon(test_data_input, prediction_length=self.pred_len, output_type="gluonts")
+        forecasts = self.model.forecast_gluon(
+            test_data_input,
+            prediction_length=self.pred_len,
+            output_type="gluonts",
+            context_length=self.context_len,
+        )
         return forecasts
 
     @property
