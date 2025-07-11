@@ -43,7 +43,7 @@ PRETTY_NAMES = {
     "car_parts_with_missing": "car_parts",
 }
 ALL_DATASETS = list(set(SHORT_DATA.split() + MED_LONG_DATA.split()))
-DATASETS_TO_TEST = ["electricity/W"]
+DATASETS_TO_TEST = ALL_DATASETS  # ["electricity/W"]
 
 METRICS = [
     MSE(forecast_type="mean"),
@@ -67,10 +67,10 @@ except FileNotFoundError:
     raise ValueError("Can not find needed dataset_properties.json file!")
 
 
-def gift_eval_dataset_iter():
+def gift_eval_dataset_iter(terms=None):
+    terms = terms or ["short", "medium", "long"]
     for ds_num, ds_name in enumerate(DATASETS_TO_TEST):
         ds_key = ds_name.split("/")[0]
-        terms = ["short", "medium", "long"]
         for term in terms:
             if (term == "medium" or term == "long") and ds_name not in MED_LONG_DATA.split():
                 continue
@@ -97,7 +97,7 @@ def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term, ds_train_context
     dataset = Dataset(name=ds_name, term=term, to_univariate=to_univariate)
     predictor.set_prediction_len(dataset.prediction_length)
     predictor.set_ds_freq(ds_freq)
-    predictor.set_context_len(ds_train_context_length)
+    predictor.set_context_len(dataset.context_length)
     season_length = get_seasonality(dataset.freq)
 
     # Measure the time taken for evaluation

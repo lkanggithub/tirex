@@ -12,11 +12,17 @@ def is_multi_series_dataset(dataset: Dataset) -> bool:
     return len(dataset.full_dataset) >= 2
 
 
+def convert_period_index_to_list_of_timestamps(period_index: pd.PeriodIndex) -> List[pd.Timestamp]:
+    return [period.start_time for period in period_index]
+
+
 def create_dataframe_from_one_data_entry(
     data_entry: DataEntry, is_multi_series: bool,
 ) -> pd.DataFrame:
     data = {
-        "datetime": period_index(data_entry, freq=data_entry["freq"]),
+        "datetime": convert_period_index_to_list_of_timestamps(
+            period_index(data_entry, freq=data_entry["freq"])
+        ),
         "target": data_entry["target"],
     }
     if is_multi_series:
@@ -74,3 +80,21 @@ def save_dataframe(dataframe: pd.DataFrame, output_path: Path) -> None:
 
 def better_gift_eval_dataset_name(dataset_name: str) -> str:
     return "_".join(dataset_name.split("/"))
+
+
+def get_series_with_gte_missing_target_pct(
+    dataframe: pd.DataFrame,
+    pct_threshold: float = 0.5,
+) -> List[str]:
+    series_with_count = dataframe.groupby("series_id")["series_id"].count()
+    series_with_null = dataframe["target"].isnull().groupby(dataframe["series_id"]).sum()
+    series_with_null_pct = series_with_null / series_with_count
+
+    return [
+        str(data)
+        for data in series_with_null_pct[series_with_null_pct >= pct_threshold].index.values
+    ]
+
+
+def filter_data_by_series(dataframe: pd.DataFrame, series_to_exclude: List[str]) -> pd.DataFrame:
+    return dataframe[~dataframe["series_id"].isin(series_to_exclude)]

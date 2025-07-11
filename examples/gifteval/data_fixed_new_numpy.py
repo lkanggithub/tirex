@@ -144,6 +144,10 @@ class Dataset:
         return self.term.multiplier * pred_len
 
     @cached_property
+    def context_length(self) -> int:
+        return self.prediction_length
+
+    @cached_property
     def freq(self) -> str:
         return self.hf_dataset[0]["freq"]
 

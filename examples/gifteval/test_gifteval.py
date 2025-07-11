@@ -1,5 +1,6 @@
 import os
 import pytest
+from pathlib import Path
 from typing import Iterator
 
 from tirex import ForecastModel, load_model
@@ -15,18 +16,19 @@ def set_gift_eval_path() -> Iterator[None]:
 
 
 @pytest.fixture
-def train_context_length() -> int:
-    return 128
+def test_result_output_path() -> Path:
+    return Path("/home/lkanggithub/projects/foundation_model_compare/gift_eval_short_term_results.csv")
 
 
-def test(train_context_length: int) -> None:
+def test(test_result_output_path: Path) -> None:
     model: ForecastModel = load_model("NX-AI/TiRex", device="cuda:0")
     wrapped_model = TiRexGiftEvalWrapper(model)
     results = []
-    for task in gift_eval_dataset_iter():
+    gift_eval_dataset_term = "short"
+    for task in gift_eval_dataset_iter([gift_eval_dataset_term]):
         print(f">>>>>>>>>>>>>>>>> {task}")
-        task_result = evaluate_dataset(wrapped_model, **task, ds_train_context_length=train_context_length)
+        task_result = evaluate_dataset(wrapped_model, **task)
         results.append(task_result)
         print(task_result)
     results = pd.DataFrame(results)
-    print(results)
+    results.to_csv(test_result_output_path, index=False)
