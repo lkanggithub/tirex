@@ -22,21 +22,6 @@ def set_gift_eval_path() -> Iterator[None]:
     yield
 
 
-def test_dataset():
-    dataset_info = next(iter(gift_eval_dataset_iter()))
-    ds_name = dataset_info["ds_name"]
-    term = dataset_info["term"]
-
-    to_univariate = (
-        False
-        if Dataset(name=dataset_info["ds_name"], term=dataset_info["term"], to_univariate=False).target_dim == 1
-        else True
-    )
-    import pdb
-    pdb.set_trace()
-    assert True
-
-
 def test_univariate_mult_series_dataset():
     dataset = Dataset(
         name="electricity/W",
@@ -56,8 +41,6 @@ def test_univariate_dataset():
         term="short",
         to_univariate=False,
     )
-    import pdb
-    pdb.set_trace()
     df_test = create_test_set_dataframe(dataset)
     df_train = create_training_set_dataframe(dataset)
     import pdb
@@ -67,10 +50,12 @@ def test_univariate_dataset():
 
 def test_multivariate_dataset():
     dataset = Dataset(
-        name="ett1/W",
+        name="ett1/W",  # "ett1/W"
         term="short",
         to_univariate=True,
     )
+    df_test = create_test_set_dataframe(dataset)
+    df_train = create_training_set_dataframe(dataset)
     import pdb
     pdb.set_trace()
     assert True
@@ -79,7 +64,7 @@ def test_multivariate_dataset():
 def test_create_mbtest_dataset() -> None:
     output_folder_path = Path("/home/lyndon.kang/projects/foundation_model_compare/gift_eval_mbtest_datasets")
 
-    for data_info in gift_eval_dataset_iter(["short"]):
+    for data_info in gift_eval_dataset_iter(["short"], only_include_univariate_data=True):
         print(f">>>>>>>>>>>>>>>>>>>>>> {data_info}")
         ds_name = data_info["ds_name"]
         term = data_info["term"]
@@ -103,7 +88,7 @@ def test_create_mbtest_dataset() -> None:
 
 def test_create_mbtest_yaml() -> None:
     mbtest_yaml_content = []
-    for data_info in gift_eval_dataset_iter(["short"]):
+    for data_info in gift_eval_dataset_iter(["long"], only_include_univariate_data=True):
         print(f">>>>>>>>>>>>>>>>>>>>>> {data_info}")
         ds_name = data_info["ds_name"]
         term = data_info["term"]
@@ -113,7 +98,7 @@ def test_create_mbtest_yaml() -> None:
             else True
         )
         dataset = Dataset(name=ds_name, term=term, to_univariate=to_univariate)
-        print(f">>>>>>>>>>>>>>>>>>>> {ds_name}")
+        print(f">>>>>>>>>>>>>>>>>>>> {ds_name} prediction length {dataset.prediction_length}")
         path_prefix = "s3://shrink-datasets/gift_eval_short_term_schema"
         path_prefix = "/home/lyndon.kang/projects/foundation_model_compare/gift_eval_short_term_schema"
 

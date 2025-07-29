@@ -67,7 +67,7 @@ except FileNotFoundError:
     raise ValueError("Can not find needed dataset_properties.json file!")
 
 
-def gift_eval_dataset_iter(terms=None):
+def gift_eval_dataset_iter(terms=None, only_include_univariate_data=False):
     terms = terms or ["short", "medium", "long"]
     for ds_num, ds_name in enumerate(DATASETS_TO_TEST):
         ds_key = ds_name.split("/")[0]
@@ -84,7 +84,9 @@ def gift_eval_dataset_iter(terms=None):
                 ds_key = ds_name.lower()
                 ds_key = PRETTY_NAMES.get(ds_key, ds_key)
                 ds_freq = dataset_properties_map[ds_key]["frequency"]
-            if dataset_properties_map[ds_key]["num_variates"] == 1:
+            if only_include_univariate_data and dataset_properties_map[ds_key]["num_variates"] == 1:
+                yield {"ds_name": ds_name, "ds_key": ds_key, "ds_freq": ds_freq, "term": term}
+            else:
                 yield {"ds_name": ds_name, "ds_key": ds_key, "ds_freq": ds_freq, "term": term}
 
 
