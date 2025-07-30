@@ -28,7 +28,10 @@ def set_gift_eval_path() -> Iterator[None]:
 
 @pytest.fixture
 def test_result_output_path() -> Path:
-    return Path("/home/lkanggithub/projects/foundation_model_compare/gift_eval_short_term_results_with_time.csv")
+    return Path(
+        "/home/lkanggithub/projects/foundation_model_compare/"
+        "results_gift_eval_short_term_tirex_gpu_with_time.csv"
+    )
 
 
 def test(test_result_output_path: Path) -> None:
@@ -62,7 +65,7 @@ def test(test_result_output_path: Path) -> None:
             )
         ]
         test_result = TestResultV2(
-            dataset_name=task,
+            dataset_name=task["dataset"],
             model_score_metrics=model_score_metrics,
             model_time_profiles=model_time_profiles,
         )
