@@ -42,28 +42,30 @@ def test(test_result_output_path: Path) -> None:
         test_time_profile = TimeProfile(partition.name)
         with TimeProfiler(test_time_profile):
             task_result = evaluate_dataset(wrapped_model, **task)
-            model_score_metrics = [
-                ModelScoreMetrics(
-                    MetricType.MAE,
-                    partition=partition,
-                    score=float(task_result["eval_metrics/MAE[0.5]"]),
-                ),
-                ModelScoreMetrics(
-                    MetricType.MAPE,
-                    partition=partition,
-                    score=float(task_result["eval_metrics/MAPE[0.5]"]),
-                ),
-            ]
-            model_time_profile = ModelTimeProfiles(
+        model_score_metrics = [
+            ModelScoreMetrics(
+                MetricType.MAE,
+                partition=partition,
+                score=float(task_result["eval_metrics/MAE[0.5]"]),
+            ),
+            ModelScoreMetrics(
+                MetricType.MAPE,
+                partition=partition,
+                score=float(task_result["eval_metrics/MAPE[0.5]"]),
+            ),
+        ]
+        model_time_profiles = [
+            ModelTimeProfiles(
                 TimeProfileType.TOTAL_CLOCK_TIME,
                 partition,
                 test_time_profile.time_ellipse,
             )
-            test_result = TestResultV2(
-                dataset_name=task,
-                model_score_metrics=model_score_metrics,
-                model_time_profiles=[model_time_profile],
-            )
-            test_results.append(test_result)
-            print(task_result)
+        ]
+        test_result = TestResultV2(
+            dataset_name=task,
+            model_score_metrics=model_score_metrics,
+            model_time_profiles=model_time_profiles,
+        )
+        test_results.append(test_result)
+        print(task_result)
     TestResultV2.to_csv(test_results, test_result_output_path)
