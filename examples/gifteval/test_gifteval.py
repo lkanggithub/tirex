@@ -65,7 +65,7 @@ def test(test_result_output_path: Path) -> None:
             )
         ]
         test_result = TestResultV2(
-            dataset_name=task["dataset"],
+            dataset_name=task["ds_name"],
             model_score_metrics=model_score_metrics,
             model_time_profiles=model_time_profiles,
         )
