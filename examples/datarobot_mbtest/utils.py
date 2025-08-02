@@ -17,7 +17,7 @@ from gluonts.ev.metrics import (
 from gluonts.model import evaluate_model
 from gluonts.time_feature import get_seasonality
 
-from examples.datarobot_mbtest.data import TestDataset
+from data import TestDataset
 
 
 # avoid excessive logging

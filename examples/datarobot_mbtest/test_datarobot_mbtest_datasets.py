@@ -19,7 +19,6 @@ from dr_model_benchmark.common.profile.enums import TimeProfileType
 from data import TestDataset
 
 
-import pandas as pd
 from utils import TiRexGiftEvalWrapper, evaluate_dataset
 
 
