@@ -101,8 +101,8 @@ def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term, ds_train_context
     predictor.set_ds_freq(ds_freq)
     predictor.set_context_len(dataset.context_length)
     season_length = get_seasonality(dataset.freq)
-    test_input_labels = [test_input_labels for _, test_input_labels in dataset.test_data]
-    num_of_forecast_points = sum(len(labels) for labels in test_input_labels)
+    test_labels_list = [test_labels for _, test_labels in dataset.test_data]
+    num_of_forecast_points = sum([len(test_labels["target"]) for test_labels in test_labels_list])
 
     # Measure the time taken for evaluation
     res = evaluate_model(
