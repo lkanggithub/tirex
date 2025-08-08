@@ -12,6 +12,7 @@ from dr_model_benchmark.common.analysis.entities import ModelTimeProfiles
 from dr_model_benchmark.common.analysis.entities import TestResultV2
 from dr_model_benchmark.common.analysis.enums import Partition
 from dr_model_benchmark.common.enums import MetricType
+from dr_model_benchmark.common.profile.entities import Seconds
 from dr_model_benchmark.common.profile.entities import TimeProfile
 from dr_model_benchmark.common.profile.utils import TimeProfiler
 from dr_model_benchmark.common.profile.enums import TimeProfileType
@@ -32,7 +33,7 @@ def set_gift_eval_path() -> Iterator[None]:
 def test_result_output_path() -> Path:
     return Path(
         "/home/lkanggithub/projects/foundation_model_compare/"
-        "results_datarobot_mbtest_datasets_tirex_gpu_with_time.csv"
+        "results_datarobot_mbtest_datasets_tirex_gpu_with_unit_time.csv"
     )
 
 
@@ -70,7 +71,9 @@ def test(test_result_output_path: Path) -> None:
             ModelTimeProfiles(
                 TimeProfileType.TOTAL_CLOCK_TIME,
                 partition,
-                test_time_profile.time_ellipse,
+                Seconds(
+                    test_time_profile.time_ellipse.to_float() / test_dataset.num_of_forecast_points
+                ),
             )
         ]
         test_result = TestResultV2(

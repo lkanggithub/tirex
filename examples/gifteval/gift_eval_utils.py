@@ -101,6 +101,8 @@ def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term, ds_train_context
     predictor.set_ds_freq(ds_freq)
     predictor.set_context_len(dataset.context_length)
     season_length = get_seasonality(dataset.freq)
+    test_input_labels = [test_input_labels for _, test_input_labels in dataset.test_data]
+    num_of_forecast_points = sum(len(labels) for labels in test_input_labels)
 
     # Measure the time taken for evaluation
     res = evaluate_model(
@@ -129,6 +131,7 @@ def evaluate_dataset(predictor, ds_name, ds_key, ds_freq, term, ds_train_context
         "eval_metrics/mean_weighted_sum_quantile_loss": res["mean_weighted_sum_quantile_loss"][0],
         "domain": dataset_properties_map[ds_key]["domain"],
         "num_variates": dataset_properties_map[ds_key]["num_variates"],
+        "num_of_forecast_points": num_of_forecast_points,
     }
     return result
 
