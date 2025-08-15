@@ -3,9 +3,16 @@ from typing import Iterator
 from pathlib import Path
 import pytest
 import yaml
+import pandas as pd
+from datetime import datetime, timedelta
 
 from data_fixed_new_numpy import Dataset
 from gift_eval_utils import gift_eval_dataset_iter
+from gluonts.model import evaluate_model
+from gift_eval_utils import TiRexGiftEvalWrapper
+from tirex import load_model
+from gluonts.time_feature import get_seasonality
+from examples.gifteval.gift_eval_utils import METRICS
 
 from utils import better_gift_eval_dataset_name
 from utils import create_test_set_dataframe
@@ -20,6 +27,27 @@ from utils import is_multi_series_dataset
 def set_gift_eval_path() -> Iterator[None]:
     os.environ["GIFT_EVAL"] = "/home/lyndon.kang/projects/foundation_model_compare/gift_eval_datasets/"
     yield
+
+
+def test_model_evaluate():
+    dataset = Dataset(
+        name="covid_deaths",
+        term="short",
+        to_univariate=False,
+    )
+
+    model = load_model("NX-AI/TiRex", device="cuda:0")
+    predictor = TiRexGiftEvalWrapper(model)
+    res = evaluate_model(
+        predictor,
+        test_data=dataset.test_data,
+        metrics=METRICS,
+        batch_size=1024,
+        axis=None,
+        mask_invalid_label=True,
+        allow_nan_forecast=False,
+        seasonality=get_seasonality(dataset.freq),
+    )
 
 
 def test_univariate_mult_series_dataset():
@@ -84,6 +112,25 @@ def test_create_mbtest_dataset() -> None:
 
         save_dataframe(training_set_dataframe, output_folder_path / f"{better_gift_eval_dataset_name(ds_name)}_train.csv")
         save_dataframe(test_set_dataframe, output_folder_path / f"{better_gift_eval_dataset_name(ds_name)}_test.csv")
+
+
+def test_replace_m4_datasets_with_valid_datetime() -> None:
+    for root_dir, _, file_names in os.walk(
+        "/home/lyndon.kang/projects/foundation_model_compare/gift_eval_short_term_schema"
+    ):
+        for file_name in file_names:
+            if file_name.find("m4_") != -1:
+                data_path = Path(root_dir) / file_name
+                df = pd.read_csv(data_path)
+                print(f">>>>>>>>>>>>>>>>>>>>> {data_path}")
+                # df["datetime"] = df['datetime'] = df['datetime'].apply(
+                #     lambda x: (datetime(int(x.split("-")[0]), int(x.split("-")[1]), int(x.split("-")[2])) + timedelta(weeks=10000)).strftime("%Y-%m-%d")
+                # )
+                time_format = "%Y-%m-%d %H:%M:%S" if file_name.find("hourly") != -1 else "%Y-%m-%d"
+                # df["datetime"] = pd.to_datetime(df["datetime"]).apply(lambda x: (x + timedelta(weeks=10000)).strftime(time_format))
+                df["datetime"] = pd.to_datetime(df["datetime"])
+                df["datetime"] = df["datetime"].apply(lambda x: (x + timedelta(weeks=10000)).strftime(time_format))
+                df.to_csv(data_path, index=False)
 
 
 def test_create_mbtest_yaml() -> None:
